@@ -1,0 +1,60 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  
+    # 【 box 】 
+    config.vm.box = "voccv/focal64-base" 
+  
+    # 【 ssh 】 
+    # 这里注意，默认的 vagrant 登录是：127.0.0.1：2222
+    config.ssh.username = "root"
+    config.ssh.password = "1"
+    config.ssh.host = "127.0.0.1"
+    config.ssh.port = 2222
+  
+    # 【 虚拟机 】
+    config.vm.provider "virtualbox" do |vb|
+      vb.name = "voccv_dev_go"                # virtualbox 实例名称
+      vb.gui = false                          # virtualbox 后台启动
+      vb.cpus = 2                             # 实例核心占用
+      vb.memory = "2048"                      # 实例内存占用：M
+    end
+  
+    # 【 vm 】
+    config.vm.hostname = "voccv-dev-go"        # host name
+    config.vm.box_check_update = false        # 私有的box，不用更新
+  
+    # 【 端口映射 】
+    # 22->2222 vagrant已经占用，个人理解：这是默认的约束，记住就好了。
+    # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+    # config.vm.network "forwarded_port", guest: 22, host: 2222, host_ip: "127.0.0.1"
+  
+    # 【 内网模式 】
+    # 注意事项：第一个网络接口（适配器1）必须是NAT适配器。Vagrant第一次使用它进行连接。应该记下第一个网络接口（NAT适配器）的MAC地址
+    # 实验：第二张网卡host-only，先ping通再ssh连接=_=!。
+    config.vm.network "private_network", ip: "192.168.56.100" 
+    # config.vm.network "private_network",type:"dhcp"
+  
+    # 【 桥接模式 】
+    # config.vm.network "public_network"
+  
+    # 【 共享文件 】
+    # （关闭）默认映射：虚拟机的 /vagrant <-双向-> 本机的 Vagrantfile 所在的文件夹
+    config.vm.synced_folder ".", "/vagrant",disabled:true
+    # （定制）映射关系：本机的 Vagrantfile 所在的文件夹./voccv  <-双向->  虚拟机的 /voccv
+    config.vm.synced_folder ".", "/voccv", create:true, owner:"root", group:"root"
+  
+    # Enable provisioning with a shell script. Additional provisioners such as
+    # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+    # documentation for more information about their specific syntax and use.
+    # config.vm.provision "shell", inline: <<-SHELL
+    #   apt-get update
+    #   apt-get install -y apache2
+    # SHELL
+  end
+  
